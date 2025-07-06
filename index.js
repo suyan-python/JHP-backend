@@ -9,6 +9,7 @@ import connectDB from "./config/db.js";
 import { productRoutes } from "./routes/productRoutes.js";
 import { cartRoutes } from "./routes/cartRoutes.js";
 import orderRoutes from "./routes/orderRoutes.js";
+import adminRoutes from "./routes/adminRoutes.js";
 
 // Payment Controllers
 import {
@@ -36,6 +37,8 @@ app.get("/api/health", (req, res) => res.send("Backend Server Running ✅"));
 app.use("/products", productRoutes);
 app.use("/cart", cartRoutes);
 app.use("/api/orders", orderRoutes);
+app.use("/api/admin", adminRoutes);
+
 app.post("/initiate-payment", EsewaInitiatePayment);
 app.post("/payment-status", paymentStatus);
 
