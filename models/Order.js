@@ -21,6 +21,7 @@ const orderSchema = new mongoose.Schema(
         quantity: { type: Number, required: true },
         price: { type: Number, required: true }, // unit price
         type: { type: String }, // optional, e.g., "washed process"
+        process: { type: String },
       },
     ],
     completed: {
