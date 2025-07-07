@@ -23,8 +23,13 @@ const orderSchema = new mongoose.Schema(
         type: { type: String }, // optional, e.g., "washed process"
       },
     ],
+    completed: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true }
+  // In your Order model (e.g., models/Order.js):
 );
 
 const Order = mongoose.model("Order", orderSchema);

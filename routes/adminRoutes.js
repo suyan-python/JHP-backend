@@ -1,5 +1,5 @@
 import express from "express";
-import Order from "../models/Order.js"; // assuming you saved your orders in orders collection
+import Order from "../models/Order.js";
 
 const router = express.Router();
 
@@ -11,6 +11,27 @@ router.get("/orders", async (req, res) => {
   } catch (error) {
     console.error("Error fetching orders:", error);
     res.status(500).json({ message: "Failed to get orders" });
+  }
+});
+
+// PATCH /api/admin/orders/:id/completed
+router.patch("/orders/:id/completed", async (req, res) => {
+  const { id } = req.params;
+  const { completed } = req.body;
+
+  try {
+    const order = await Order.findByIdAndUpdate(
+      id,
+      { completed },
+      { new: true }
+    );
+    if (!order) {
+      return res.status(404).json({ message: "Order not found" });
+    }
+    res.json(order);
+  } catch (error) {
+    console.error("Error updating order completion:", error);
+    res.status(500).json({ message: "Failed to update order" });
   }
 });
 
