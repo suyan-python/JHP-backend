@@ -11,23 +11,29 @@ const orderSchema = new mongoose.Schema(
     paymentMethod: { type: String, required: true },
     total: { type: Number, required: true },
     discountedTotal: { type: Number },
-    shipping: { type: Number }, // Optional shipping fee
-    orderId: { type: String }, // Optional unique order ID
+    shipping: { type: Number },
+    orderId: { type: String },
+
+    /** 🌍 New field: Delivery Location */
+    location: {
+      address: { type: String }, // Optional readable address
+      lat: { type: Number, required: false }, // Latitude
+      lng: { type: Number, required: false }, // Longitude
+    },
+
     items: [
       {
         itemId: { type: Number, required: true },
         name: { type: String, required: true },
-        selectedSize: { type: Number, required: true }, // e.g., 250, 500, 1000
+        selectedSize: { type: Number, required: true },
         quantity: { type: Number, required: true },
-        price: { type: Number, required: true }, // unit price
-        type: { type: String }, // optional, e.g., "washed process"
+        price: { type: Number, required: true },
+        type: { type: String },
         process: { type: String },
       },
     ],
-    completed: {
-      type: Boolean,
-      default: false,
-    },
+
+    completed: { type: Boolean, default: false },
   },
   { timestamps: true }
 );
