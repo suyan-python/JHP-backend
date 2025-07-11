@@ -34,6 +34,11 @@ const orderSchema = new mongoose.Schema(
     ],
 
     completed: { type: Boolean, default: false },
+    status: {
+      type: String,
+      enum: ["pending", "paid"],
+      default: "pending",
+    },
   },
   { timestamps: true }
 );

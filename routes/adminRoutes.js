@@ -49,4 +49,25 @@ router.delete("/orders/:id", async (req, res) => {
   }
 });
 
+// PATCH /api/admin/orders/:id/status
+router.patch("/orders/:id/status", async (req, res) => {
+  const { id } = req.params;
+  const { status } = req.body;
+
+  if (!["pending", "paid"].includes(status)) {
+    return res.status(400).json({ message: "Invalid status value" });
+  }
+
+  try {
+    const order = await Order.findByIdAndUpdate(id, { status }, { new: true });
+    if (!order) {
+      return res.status(404).json({ message: "Order not found" });
+    }
+    res.json(order);
+  } catch (error) {
+    console.error("Error updating status:", error);
+    res.status(500).json({ message: "Failed to update status" });
+  }
+});
+
 export default router;
