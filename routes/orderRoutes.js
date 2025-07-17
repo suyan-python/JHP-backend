@@ -1,24 +1,22 @@
 import express from "express";
 import Order from "../models/Order.js";
-import { sendOrderEmail } from "../utils/sendEmail.js";
+import { sendOrderEmail } from "../utils/sendEmail.js"; // 👈 import the function
 
 const router = express.Router();
 
 router.post("/", async (req, res) => {
   try {
     const newOrder = new Order(req.body);
-    await newOrder.save();
+    const savedOrder = await newOrder.save();
 
-    if (newOrder.email) {
-      await sendOrderEmail(newOrder);
-    }
+    console.log("✅ Order saved, now sending email...");
 
-    res
-      .status(201)
-      .json({ message: "Order saved and email sent successfully" });
+    await sendOrderEmail(savedOrder); // 👈 this triggers the email
+
+    res.status(201).json({ message: "Order saved and email sent" });
   } catch (error) {
-    console.error("Error:", error);
-    res.status(500).json({ error: "Failed to save order or send email" });
+    console.error("❌ Error saving order:", error.message);
+    res.status(500).json({ error: "Failed to save order" });
   }
 });
 
