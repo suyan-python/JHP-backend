@@ -1,5 +1,6 @@
 import express from "express";
 import Order from "../models/Order.js";
+import { placeOrder } from "../controller/orderController.js";
 
 const router = express.Router();
 
@@ -13,5 +14,7 @@ router.post("/", async (req, res) => {
     res.status(500).json({ error: "Failed to save order" });
   }
 });
+
+router.post("/", placeOrder);
 
 export default router;
