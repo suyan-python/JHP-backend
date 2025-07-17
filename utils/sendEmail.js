@@ -4,7 +4,7 @@ import nodemailer from "nodemailer";
 const transporter = nodemailer.createTransport({
   host: "smtp-relay.brevo.com",
   port: 587,
-  secure: false, // use TLS
+
   auth: {
     user: process.env.BREVO_USER, // your Brevo login email
     pass: process.env.BREVO_PASS, // your Brevo SMTP password
@@ -33,10 +33,19 @@ export const sendOrderEmail = async (order) => {
     <p>Best regards,<br>Jewel Himalayan Products</p>
   `;
 
-  await transporter.sendMail({
-    from: '"Jewel Himalayan Products" <no-reply@jewelhimalayanproducts.com>',
-    to: order.email,
-    subject: `🧾 Order Confirmation - ${order.orderId}`,
-    html: htmlContent,
-  });
+  transporter.sendMail(
+    {
+      from: '"Jewel Himalayan Products" <no-reply@jewelhimalayanproducts.com>',
+      to: order.email,
+      subject: `🧾 Order Confirmation - ${order.orderId}`,
+      html: htmlContent,
+    },
+    (error, info) => {
+      if (error) {
+        console.error("❌ Email sending failed:", error);
+      } else {
+        console.log("✅ Email sent:", info.response);
+      }
+    }
+  );
 };
