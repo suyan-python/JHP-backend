@@ -42,6 +42,10 @@ app.use("/api/admin", adminRoutes);
 app.post("/initiate-payment", EsewaInitiatePayment);
 app.post("/payment-status", paymentStatus);
 
+app.get("/", (req, res) => {
+  res.send("API is working");
+});
+
 // Start the server
 app.listen(PORT, () => {
   console.log(`🚀 Server running at http://localhost:${PORT}`);

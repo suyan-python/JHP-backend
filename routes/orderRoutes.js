@@ -3,16 +3,16 @@ import express from "express";
 import Order from "../models/Order.js";
 import { placeOrder } from "../controller/orderController.js";
 
-const router = express.Router();
+const orderRouter = express.Router();
 
-router.post("/", async (req, res) => {
+orderRouter.post("/order", async (req, res) => {
   try {
     const newOrder = new Order(req.body);
     const savedOrder = await newOrder.save();
 
     console.log("✅ Order saved, now sending email...");
 
-    // await sendOrderEmail(savedOrder); // 👈 this triggers the email
+    await sendOrderEmail(savedOrder); // 👈 this triggers the email
 
     res.status(201).json({ message: "Order saved and email sent" });
   } catch (error) {
@@ -21,6 +21,6 @@ router.post("/", async (req, res) => {
   }
 });
 
-router.post("/", placeOrder);
+orderRouter.post("/order", placeOrder);
 
-export default router;
+export default orderRouter;
