@@ -20,15 +20,19 @@ export const placeOrder = async (req, res) => {
       deliveryTime,
     } = orderData;
 
-    const finalTotal = (discountedTotal ?? total) + (shipping ?? 0);
+    const finalTotal =
+      Number(discountedTotal || total || 0) + Number(shipping || 0);
 
     const itemsHtml = items
-      .map(
-        (i) =>
-          `<li>${i.name} × ${i.quantity} (${i.selectedSize}g) — NRs. ${(
-            i.price * i.quantity
-          ).toFixed(2)}</li>`
-      )
+      .map((i) => {
+        const price = Number(i.price);
+        const quantity = Number(i.quantity);
+        const total = !isNaN(price * quantity)
+          ? (price * quantity).toFixed(2)
+          : "N/A";
+
+        return `<li>${i.name} × ${quantity} (${i.selectedSize}g) — NRs. ${total}</li>`;
+      })
       .join("");
 
     const mailOptions = {
