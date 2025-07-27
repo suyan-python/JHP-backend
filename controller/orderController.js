@@ -1,5 +1,6 @@
 import Order from "../models/Order.js";
 import sendEmail from "../utils/sendEmail.js";
+import transporter from "../config/nodemailer.js";
 
 export const placeOrder = async (req, res) => {
   try {
@@ -31,34 +32,57 @@ export const placeOrder = async (req, res) => {
       )
       .join("");
 
-    const html = `
-      <h2>Hello ${firstName} ${lastName},</h2>
-      <p>Thank you for your order with Jewel Himalayan Products.</p>
-      <h3>Order Summary</h3>
-      <ul>${itemsHtml}</ul>
-      <p><strong>Subtotal:</strong> NRs. ${total.toFixed(2)}</p>
-      ${
-        discountedTotal
-          ? `<p><strong>Discount:</strong> NRs. ${(
-              total - discountedTotal
-            ).toFixed(2)}</p>`
-          : ""
-      }
-      <p><strong>Shipping:</strong> NRs. ${(shipping ?? 0).toFixed(2)}</p>
-      <p><strong>Total:</strong> NRs. ${finalTotal.toFixed(2)}</p>
-      <p><strong>Delivery Time:</strong> ${deliveryTime}</p>
-      <p><strong>Address:</strong> ${location?.address || "Not provided"}</p>
-      <br/>
-      <p>We'll contact you at ${phone} for confirmation.</p>
-      <br/>
-      <p>Best regards,<br/>Jewel Himalayan Products Team</p>
-    `;
+    const mailOptions = {
+      from: process.env.SENDER_EMAIL,
+      to: req.email,
+      subject: "Your Order Confirmation - JHP Store",
+      html: `
+    <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: auto; border: 1px solid #eee; padding: 24px; border-radius: 8px;">
+      <img src="https://toursandtravelsnepal.netlify.app/logo1.png" alt="Logo" style="width: 120px; margin-bottom: 24px;" />
 
-    await sendEmail(
-      email,
-      "🧾 Your Order Confirmation – Jewel Himalayan Products",
-      html
-    );
+      <h2 style="color: #dc143c;">Your Booking Confirmation</h2>
+
+      <p>Dear <strong>${req.user.username}</strong>,</p>
+      <p>Thank you for booking with <strong>Tours & Travels</strong>! Here are your booking details:</p>
+
+      <table style="width: 100%; margin-top: 16px; border-collapse: collapse;">
+        <tr>
+          <td><strong>Package Name:</strong></td>
+          <td>${roomData.packageName}</td>
+        </tr>
+        <tr>
+          <td><strong>Booking ID:</strong></td>
+          <td>${booking._id}</td>
+        </tr>
+        <tr>
+          <td><strong>Agency Name:</strong></td>
+          <td>${roomData.hotel.name}</td>
+        </tr>
+        <tr>
+          <td><strong>Location:</strong></td>
+          <td>${roomData.hotel.address}</td>
+        </tr>
+        <tr>
+          <td><strong>Check-In Date:</strong></td>
+          <td>${checkIn.toDateString()}</td>
+        </tr>
+        <tr>
+          <td><strong>Check-Out Date:</strong></td>
+          <td>${checkOut.toDateString()}</td>
+        </tr>
+        <tr>
+          <td><strong>Total Amount:</strong></td>
+          <td>${process.env.CURRENCY || "$"} ${booking.totalPrice}</td>
+        </tr>
+      </table>
+
+      <p style="margin-top: 24px;">We look forward to welcoming you. If you need to make any changes, feel free to reach out to us.</p>
+      <p style="margin-top: 24px; font-size: 12px; color: #777;">© ${new Date().getFullYear()} Tours & Travels. All rights reserved.</p>
+    </div>
+  `,
+    };
+
+    await transporter.sendMail(mailOptions);
 
     res
       .status(201)
