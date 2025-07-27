@@ -41,17 +41,19 @@ export const placeOrder = async (req, res) => {
       subject: "Order Confirmation - Jewel Himalayan Products",
       html: `
         <div style="font-family: 'Segoe UI', sans-serif; max-width: 600px; margin: auto; border: 1px solid #eee; padding: 24px; border-radius: 8px;">
-          <img src="https://toursandtravelsnepal.netlify.app/logo1.png" alt="JHP Logo" style="width: 120px; margin-bottom: 24px;" />
+          <img src="https://store.jewelhimalayanproducts.com/store.png" alt="JHP Logo" style="width: 120px; margin-bottom: 24px;" />
 
-          <h2 style="color: #dc143c;">Your Order Confirmation</h2>
+          <h2 style="color: #5a3114;">Your Order Confirmation</h2>
 
           <p>Dear <strong>${firstName} ${lastName}</strong>,</p>
-          <p>Thank you for placing your order with <strong>Jewel Himalayan Products</strong>! Here are your order details:</p>
+          <p>Thank you for placing your order with <strong>Jewel Himalayan Products</strong>! Here is your order detail:</p>
 
           <h4>Shipping Info:</h4>
           <ul>
             <li><strong>Phone:</strong> ${phone}</li>
-            <li><strong>Location:</strong> ${location}</li>
+            <li><strong>Location:</strong> ${location.lat} ${location.lng} ${
+        location.address
+      }</li>
             <li><strong>Delivery Time:</strong> ${
               deliveryTime || "Standard"
             }</li>
@@ -61,7 +63,7 @@ export const placeOrder = async (req, res) => {
           <ul>${itemsHtml}</ul>
 
         <p><strong>Total:</strong> NRs. ${Number(total || 0).toFixed(2)}</p>
-        <p><strong>Final Total:</strong> <span style="color: #dc143c;">NRs. ${Number(
+        <p><strong>Final Total:</strong> <span style="color: #5a3114;">NRs. ${Number(
           finalTotal
         ).toFixed(2)}</span></p>
 
@@ -78,7 +80,7 @@ ${
     : ""
 }
 
-          <p><strong>Final Total:</strong> <span style="color: #dc143c;">NRs. ${finalTotal.toFixed(
+          <p><strong>Final Total:</strong> <span style="color: #5a3114;">NRs. ${finalTotal.toFixed(
             2
           )}</span></p>
 
