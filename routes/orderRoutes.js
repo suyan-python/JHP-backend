@@ -5,7 +5,7 @@ import { placeOrder } from "../controller/orderController.js";
 
 const orderRouter = express.Router();
 
-orderRouter.post("/order", async (req, res) => {
+orderRouter.post("/", async (req, res) => {
   try {
     const newOrder = new Order(req.body);
     const savedOrder = await newOrder.save();
@@ -21,6 +21,6 @@ orderRouter.post("/order", async (req, res) => {
   }
 });
 
-orderRouter.post("/order", placeOrder);
+orderRouter.post("/", placeOrder);
 
 export default orderRouter;
