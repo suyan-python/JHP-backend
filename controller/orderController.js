@@ -60,19 +60,24 @@ export const placeOrder = async (req, res) => {
           <h4>Items Ordered:</h4>
           <ul>${itemsHtml}</ul>
 
-          <p><strong>Total:</strong> NRs. ${total.toFixed(2)}</p>
-          ${
-            discountedTotal
-              ? `<p><strong>Discounted:</strong> NRs. ${discountedTotal.toFixed(
-                  2
-                )}</p>`
-              : ""
-          }
-          ${
-            shipping
-              ? `<p><strong>Shipping:</strong> NRs. ${shipping.toFixed(2)}</p>`
-              : ""
-          }
+        <p><strong>Total:</strong> NRs. ${Number(total || 0).toFixed(2)}</p>
+        <p><strong>Final Total:</strong> <span style="color: #dc143c;">NRs. ${Number(
+          finalTotal
+        ).toFixed(2)}</span></p>
+
+${
+  discountedTotal !== undefined && !isNaN(Number(discountedTotal))
+    ? `<p><strong>Discounted:</strong> NRs. ${Number(discountedTotal).toFixed(
+        2
+      )}</p>`
+    : ""
+}
+${
+  shipping !== undefined && !isNaN(Number(shipping))
+    ? `<p><strong>Shipping:</strong> NRs. ${Number(shipping).toFixed(2)}</p>`
+    : ""
+}
+
           <p><strong>Final Total:</strong> <span style="color: #dc143c;">NRs. ${finalTotal.toFixed(
             2
           )}</span></p>
