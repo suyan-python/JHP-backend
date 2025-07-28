@@ -27,7 +27,6 @@ const EsewaInitiatePayment = async (req, res) => {
         amount: amount,
       });
       await transaction.save();
-      console.log("transaction passed   ");
       return res.send({
         url: reqPayment.request.res.responseUrl,
       });
@@ -62,7 +61,6 @@ const paymentStatus = async (req, res) => {
         .json({ message: "Transaction status updated successfully" });
     }
   } catch (error) {
-    console.error("Error updating transaction status:", error);
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };

@@ -9,7 +9,6 @@ router.get("/orders", async (req, res) => {
     const orders = await Order.find().sort({ createdAt: -1 });
     res.json(orders);
   } catch (error) {
-    console.error("Error fetching orders:", error);
     res.status(500).json({ message: "Failed to get orders" });
   }
 });
@@ -30,7 +29,6 @@ router.patch("/orders/:id/completed", async (req, res) => {
     }
     res.json(order);
   } catch (error) {
-    console.error("Error updating order completion:", error);
     res.status(500).json({ message: "Failed to update order" });
   }
 });
@@ -44,7 +42,6 @@ router.delete("/orders/:id", async (req, res) => {
     }
     res.json({ message: "Order deleted successfully" });
   } catch (error) {
-    console.error("Error deleting order:", error);
     res.status(500).json({ message: "Failed to delete order" });
   }
 });
@@ -65,7 +62,6 @@ router.patch("/orders/:id/status", async (req, res) => {
     }
     res.json(order);
   } catch (error) {
-    console.error("Error updating status:", error);
     res.status(500).json({ message: "Failed to update status" });
   }
 });
