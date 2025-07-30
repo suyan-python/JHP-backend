@@ -1,19 +1,9 @@
+// models/PopupEmail.js
 import mongoose from "mongoose";
 
-const popupEmailSchema = new mongoose.Schema(
-  {
-    email: {
-      type: String,
-      required: true,
-      unique: true,
-    },
-    subscribe: {
-      type: Boolean,
-      default: true,
-    },
-  },
-  { timestamps: true }
-);
+const popupEmailSchema = new mongoose.Schema({
+  email: { type: String, required: true },
+  createdAt: { type: Date, default: Date.now },
+});
 
-const PopupEmail = mongoose.model("PopupEmail", popupEmailSchema);
-export default PopupEmail;
+export default mongoose.model("PopupEmail", popupEmailSchema);

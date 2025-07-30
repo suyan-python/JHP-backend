@@ -7,18 +7,21 @@ const emailRouter = express.Router();
 emailRouter.post("/", async (req, res) => {
   try {
     const { email } = req.body;
-    if (!email) return res.status(400).json({ message: "Email is required" });
 
-    // Check if email already exists in PopupEmail collection
+    if (!email) {
+      return res.status(400).json({ message: "Email is required" });
+    }
+
+    // Check if the email already exists in DB
     const existing = await PopupEmail.findOne({ email });
 
     if (!existing) {
       await PopupEmail.create({ email, subscribe: true });
     }
 
-    // Send discount email
+    // Define mail options
     const mailOptions = {
-      from: process.env.SENDER_EMAIL,
+      from: `"Jewel Himalayan Products" <${process.env.SENDER_EMAIL}>`,
       to: email,
       subject: "🎁 Your Discount Code - Jewel Himalayan Products",
       html: `
@@ -32,12 +35,16 @@ emailRouter.post("/", async (req, res) => {
       `,
     };
 
-    await transporter.sendMail(mailOptions);
+    // Send the email
+    const info = await transporter.sendMail(mailOptions);
+    console.log("Email sent: ", info.messageId);
 
     res.status(200).json({ message: "Email saved and coupon sent." });
   } catch (err) {
-    console.error("Error saving email:", err);
-    res.status(500).json({ message: "Something went wrong." });
+    console.error("Error submitting email:", err);
+    res
+      .status(500)
+      .json({ message: "Internal server error", error: err.message });
   }
 });
 
