@@ -16,6 +16,7 @@ import {
   EsewaInitiatePayment,
   paymentStatus,
 } from "./controller/esewa.controller.js";
+import emailRouter from "./routes/emailRoutes.js";
 
 // Initialize environment variables
 dotenv.config();
@@ -37,6 +38,8 @@ app.get("/api/health", (req, res) => res.send("Backend Server Running ✅"));
 app.use("/products", productRoutes);
 app.use("/cart", cartRoutes);
 app.use("/api/orders", orderRoutes);
+app.use("/api/emails", emailRouter);
+
 app.use("/api/admin", adminRoutes);
 
 app.post("/initiate-payment", EsewaInitiatePayment);
