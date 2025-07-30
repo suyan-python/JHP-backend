@@ -1,5 +1,5 @@
 import express from "express";
-import Order from "../models/Order.js";
+import PopupEmail from "../models/popupEmailModel.js";
 import transporter from "../config/nodemailer.js";
 
 const emailRouter = express.Router();
@@ -9,18 +9,11 @@ emailRouter.post("/", async (req, res) => {
     const { email } = req.body;
     if (!email) return res.status(400).json({ message: "Email is required" });
 
-    // Check if email already subscribed in Order collection
-    const existing = await Order.findOne({ email, subscribe: true });
+    // Check if email already exists in PopupEmail collection
+    const existing = await PopupEmail.findOne({ email });
 
     if (!existing) {
-      await Order.create({
-        email,
-        subscribe: true,
-        paymentMethod: "none",
-        total: 0,
-        status: "pending",
-        items: [],
-      });
+      await PopupEmail.create({ email, subscribe: true });
     }
 
     // Send discount email
