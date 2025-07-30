@@ -41,7 +41,7 @@ export const placeOrder = async (req, res) => {
         : null;
 
     const mailOptions = {
-      from: process.env.SENDER_EMAIL,
+      from: `"Jewel Himalayan Products" <${process.env.SENDER_EMAIL}>`,
       to: email,
       subject: "Order Confirmation - Jewel Himalayan Products",
       html: `
