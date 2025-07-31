@@ -23,7 +23,7 @@ emailRouter.post("/", async (req, res) => {
     const mailOptions = {
       from: `"Jewel Himalayan Products" <${process.env.SENDER_EMAIL}>`,
       to: email,
-      subject: "A Special Thank You – Enjoy Your Discount on the Next Order!",
+      subject: "Your Discount Code - Jewel Himalayan Products",
       html: `
     <div style="font-family: sans-serif; background-color: #fff; padding: 30px; max-width: 500px; margin: auto; border-radius: 10px; box-shadow: 0 0 12px rgba(0,0,0,0.1);">
       <h2 style="color: #4a2e1b;">Thank You for Shopping With Us! ❤️</h2>
