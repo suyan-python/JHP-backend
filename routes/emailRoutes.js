@@ -23,16 +23,18 @@ emailRouter.post("/", async (req, res) => {
     const mailOptions = {
       from: `"Jewel Himalayan Products" <${process.env.SENDER_EMAIL}>`,
       to: email,
-      subject: "🎁 Your Discount Code - Jewel Himalayan Products",
+      subject: "A Special Thank You – Enjoy Your Discount on the Next Order!",
       html: `
-        <div style="font-family: sans-serif; background-color: #fff; padding: 30px; max-width: 500px; margin: auto; border-radius: 10px; box-shadow: 0 0 12px rgba(0,0,0,0.1);">
-          <h2 style="color: #4a2e1b;">Enjoy Your Discount 🎉</h2>
-          <p>Thank you for signing up! Here's your exclusive coupon code:</p>
-          <h1 style="color: #dc143c; font-size: 32px;">FROMMAIL</h1>
-          <p style="margin-top: 12px;">Use this code at checkout to get your special discount.</p>
-          <a href="https://store.jewelhimalayanproducts.com" style="display: inline-block; margin-top: 20px; padding: 10px 20px; background-color: #4a2e1b; color: #fff; text-decoration: none; border-radius: 6px;">Shop Now</a>
-        </div>
-      `,
+    <div style="font-family: sans-serif; background-color: #fff; padding: 30px; max-width: 500px; margin: auto; border-radius: 10px; box-shadow: 0 0 12px rgba(0,0,0,0.1);">
+      <h2 style="color: #4a2e1b;">Thank You for Shopping With Us! ❤️</h2>
+      <p>We're truly grateful to have you as part of our coffee-loving community. Your recent purchase means a lot to us.</p>
+      <p>To show our appreciation, here's a special coupon code just for you:</p>
+      <h1 style="color: #dc143c; font-size: 32px; letter-spacing: 2px;">JHPFAMILY</h1>
+      <p style="margin-top: 12px;">Use this code on your next order and enjoy an exclusive discount – just our little way of saying thank you.</p>
+      <p style="margin-top: 16px;">We hope to serve you again soon with more of our finest Himalayan coffee beans.</p>
+      <a href="https://store.jewelhimalayanproducts.com" style="display: inline-block; margin-top: 20px; padding: 10px 20px; background-color: #4a2e1b; color: #fff; text-decoration: none; border-radius: 6px;">Shop Again & Save</a>
+    </div>
+  `,
     };
 
     // Send the email
