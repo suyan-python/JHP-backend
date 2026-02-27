@@ -10,6 +10,7 @@ import { productRoutes } from "./routes/productRoutes.js";
 import { cartRoutes } from "./routes/cartRoutes.js";
 import orderRoutes from "./routes/orderRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
+import aiRoutes from "./routes/aiRoutes.js";
 
 // Payment Controllers
 import {
@@ -17,6 +18,8 @@ import {
   paymentStatus,
 } from "./controller/esewa.controller.js";
 import emailRouter from "./routes/emailRoutes.js";
+import wholesaleRoutes from "./routes/wholesaleRoutes.js";
+import newsletterRoutes from "./routes/newsletterRoutes.js";
 
 // Initialize environment variables
 dotenv.config();
@@ -39,11 +42,15 @@ app.use("/products", productRoutes);
 app.use("/cart", cartRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/emails", emailRouter);
+app.use("/api", wholesaleRoutes);
+app.use("/api/newsletter", newsletterRoutes);
 
 app.use("/api/admin", adminRoutes);
 
 app.post("/initiate-payment", EsewaInitiatePayment);
 app.post("/payment-status", paymentStatus);
+
+app.use("/api/admin", aiRoutes);
 
 app.get("/", (req, res) => {
   res.send("API is working");
