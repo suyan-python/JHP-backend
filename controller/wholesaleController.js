@@ -1,4 +1,4 @@
-import WholesaleInquiry from "../models/WholesaleInquiry.js";
+import WholesaleInquiry from "../models/wholesaleInquiry.js";
 import sendEmail from "../utils/sendEmail.js"; // optional if sending email
 
 export const submitWholesaleInquiry = async (req, res) => {
