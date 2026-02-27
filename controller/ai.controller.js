@@ -1,4 +1,4 @@
-import Order from "../models/order.js";
+import Order from "../models/Order.js";
 
 // Utility to group by week/month/day
 const getWeekLabel = (date) => {

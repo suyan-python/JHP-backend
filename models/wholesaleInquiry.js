@@ -13,6 +13,8 @@ const wholesaleSchema = new mongoose.Schema(
   { timestamps: true },
 );
 
-const WholesaleInquiry = mongoose.model("WholesaleInquiry", wholesaleSchema);
+const WholesaleInquiry =
+  mongoose.models.WholesaleInquiry ||
+  mongoose.model("WholesaleInquiry", wholesaleSchema);
 
 export default WholesaleInquiry;
