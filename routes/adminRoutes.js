@@ -1,6 +1,6 @@
 import express from "express";
 import Order from "../models/Order.js";
-import WholesaleInquiry from "../models/WholesaleInquiry.js";
+import WholesaleInquiry from "../models/wholesaleInquiry.js";
 import Newsletter from "../models/Newsletter.js";
 
 const router = express.Router();
