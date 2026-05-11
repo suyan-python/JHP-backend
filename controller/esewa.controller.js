@@ -1,68 +1,152 @@
-import { EsewaPaymentGateway, EsewaCheckStatus } from "esewajs";
-import { Transaction } from "../models/Transaction.model.js"; //for saving the ordered data in database
+import Order from "../models/Order.js";
+import { generateEsewaSignature } from "../utils/esewa.js";
+import { v4 as uuidv4 } from "uuid";
 
-const EsewaInitiatePayment = async (req, res) => {
-  const { amount, productId } = req.body; //data coming from frontend
+// export const initiateEsewaPayment = async (req, res) => {
+//   try {
+//     const {
+//       firstName,
+//       lastName,
+//       phone,
+//       total,
+//       finalTotal,
+//       items,
+//       shipping,
+//       location,
+//     } = req.body;
+
+//     const transaction_uuid = uuidv4();
+
+//     // ✅ create order FIRST
+//     await Order.create({
+//       orderId: transaction_uuid,
+//       firstName,
+//       lastName,
+//       phone,
+//       total: finalTotal ,
+//       items,
+//       shipping,
+//       location,
+//       status: "pending",
+//       paymentMethod: "esewa",
+//     });
+
+//     const amount = finalTotal;
+
+//     const message = `total_amount=${amount},transaction_uuid=${transaction_uuid},product_code=${process.env.MERCHANT_ID}`;
+
+//     const signature = generateEsewaSignature(message, process.env.SECRET);
+
+//     res.json({
+//       payment_url: process.env.ESEWAPAYMENT_URL,
+//       params: {
+//         amount,
+//         tax_amount: 0,
+//         total_amount: amount,
+//         transaction_uuid,
+//         product_code: process.env.MERCHANT_ID,
+//         product_service_charge: 0,
+//         product_delivery_charge: 0,
+//         success_url: `${process.env.BACKEND_URL}/api/payment/esewa/success`,
+//         failure_url: `${process.env.FRONTEND_URL}/payment-failed`,
+//         signed_field_names: "total_amount,transaction_uuid,product_code",
+//         signature,
+//       },
+//     });
+//   } catch (err) {
+//     console.error(err);
+//     res.status(500).json({ message: "eSewa initiation failed" });
+//   }
+// };
+
+export const initiateEsewaPayment = async (req, res) => {
   try {
-    const reqPayment = await EsewaPaymentGateway(
-      amount,
-      0,
-      0,
-      0,
-      productId,
-      process.env.MERCHANT_ID,
-      process.env.SECRET,
-      process.env.SUCCESS_URL,
-      process.env.FAILURE_URL,
-      process.env.ESEWAPAYMENT_URL,
-      undefined,
-      undefined
-    );
-    if (!reqPayment) {
-      return res.status(400).json("error sending data");
-    }
-    if (reqPayment.status === 200) {
-      const transaction = new Transaction({
-        product_id: productId,
-        amount: amount,
-      });
-      await transaction.save();
-      return res.send({
-        url: reqPayment.request.res.responseUrl,
-      });
-    }
-  } catch (error) {
-    return res.status(400).json("error sending data");
+    const {
+      firstName,
+      lastName,
+      phone,
+      total,
+      finalTotal,
+      items,
+      shipping,
+      location,
+    } = req.body;
+
+    const transaction_uuid = uuidv4();
+
+    // ✅ USE FINAL TOTAL
+    const amount = finalTotal;
+
+    await Order.create({
+      orderId: transaction_uuid,
+      firstName,
+      lastName,
+      phone,
+      total: amount,
+      items,
+      shipping,
+      location,
+      status: "pending",
+      paymentMethod: "esewa",
+    });
+
+    const message = `total_amount=${amount},transaction_uuid=${transaction_uuid},product_code=${process.env.MERCHANT_ID}`;
+
+    const signature = generateEsewaSignature(message, process.env.SECRET);
+
+    res.json({
+      payment_url: process.env.ESEWAPAYMENT_URL,
+      params: {
+        amount,
+        tax_amount: 0,
+        total_amount: amount,
+        transaction_uuid,
+        product_code: process.env.MERCHANT_ID,
+        product_service_charge: 0,
+        product_delivery_charge: 0,
+        success_url: `${process.env.BACKEND_URL}/api/payment/esewa/success`,
+        failure_url: `${process.env.FRONTEND_URL}/payment-failed`,
+        signed_field_names: "total_amount,transaction_uuid,product_code",
+        signature,
+      },
+    });
+  } catch (err) {
+    console.error(err);
+
+    res.status(500).json({
+      message: "eSewa initiation failed",
+    });
   }
 };
 
-const paymentStatus = async (req, res) => {
-  const { product_id } = req.body; // Extract data from request body
+export const esewaSuccess = async (req, res) => {
   try {
-    // Find the transaction by its signature
-    const transaction = await Transaction.findOne({ product_id });
-    if (!transaction) {
-      return res.status(400).json({ message: "Transaction not found" });
+    const { data } = req.query;
+
+    const decoded = JSON.parse(Buffer.from(data, "base64").toString("utf-8"));
+
+    const { transaction_uuid, status, total_amount } = decoded;
+
+    const order = await Order.findOne({ orderId: transaction_uuid });
+
+    if (!order) {
+      return res.redirect(`${process.env.FRONTEND_URL}/error`);
     }
 
-    const paymentStatusCheck = await EsewaCheckStatus(
-      transaction.amount,
-      transaction.product_id,
-      process.env.MERCHANT_ID,
-      process.env.ESEWAPAYMENT_STATUS_CHECK_URL
-    );
+    if (status === "COMPLETE") {
+      order.status = "paid";
+      order.transactionId = decoded.transaction_code;
+      await order.save();
 
-    if (paymentStatusCheck.status === 200) {
-      // Update the transaction status
-      transaction.status = paymentStatusCheck.data.status;
-      await transaction.save();
-      return res
-        .status(200)
-        .json({ message: "Transaction status updated successfully" });
+      return res.redirect(`${process.env.FRONTEND_URL}/payment-success`);
     }
-  } catch (error) {
-    res.status(500).json({ message: "Server error", error: error.message });
+
+    order.status = "failed";
+    await order.save();
+
+    res.redirect(`${process.env.FRONTEND_URL}/payment-failed`);
+  } catch (err) {
+    console.error(err);
+    res.redirect(`${process.env.FRONTEND_URL}/error`);
   }
 };
-
-export { EsewaInitiatePayment, paymentStatus };

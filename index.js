@@ -13,12 +13,14 @@ import adminRoutes from "./routes/adminRoutes.js";
 import aiRoutes from "./routes/aiRoutes.js";
 
 // Payment Controllers
-import {
-  EsewaInitiatePayment,
-  paymentStatus,
-} from "./controller/esewa.controller.js";
+// import {
+//   EsewaInitiatePayment,
+//   EsewaSuccessCallback,
+//   paymentStatus,
+// } from "./controller/esewa.controller.js";
 import emailRouter from "./routes/emailRoutes.js";
 import wholesaleRoutes from "./routes/wholesaleRoutes.js";
+import esewaRoutes from "./routes/esewaRoutes.js";
 import newsletterRoutes from "./routes/newsletterRoutes.js";
 
 // Initialize environment variables
@@ -45,10 +47,13 @@ app.use("/api/emails", emailRouter);
 app.use("/api", wholesaleRoutes);
 app.use("/api/newsletter", newsletterRoutes);
 
+app.use("/api/payment", esewaRoutes);
+
 app.use("/api/admin", adminRoutes);
 
-app.post("/initiate-payment", EsewaInitiatePayment);
-app.post("/payment-status", paymentStatus);
+// app.post("/initiate-payment", EsewaInitiatePayment);
+// app.post("/payment-status", paymentStatus);
+// app.get("/api/esewa/success", EsewaSuccessCallback);
 
 app.use("/api/admin", aiRoutes);
 
