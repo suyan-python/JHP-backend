@@ -1,10 +1,62 @@
 import Order from "../models/Order.js";
 import transporter from "../config/nodemailer.js";
 
+const parseNumber = (value) => {
+  const numericValue = Number(value);
+  return Number.isFinite(numericValue) ? numericValue : 0;
+};
+
+const normalizeSelectedSize = (value) => {
+  if (typeof value === "number" && Number.isFinite(value)) return value;
+
+  if (typeof value === "string") {
+    const match = value.match(/-?\d+(?:\.\d+)?/);
+    return match ? Number(match[0]) : 0;
+  }
+
+  return 0;
+};
+
 export const placeOrder = async (req, res) => {
   try {
-    const orderData = req.body;
-    const newOrder = new Order(orderData);
+    const orderData = req.body || {};
+    const sanitizedItems = Array.isArray(orderData.items)
+      ? orderData.items.map((item) => {
+          const selectedGrind =
+            item?.selectedGrind ||
+            item?.grindOption ||
+            item?.grind ||
+            (Array.isArray(item?.grindOptions) && item.grindOptions.length
+              ? item.grindOptions[0]
+              : "");
+
+          return {
+            ...item,
+            itemId: parseNumber(item?.itemId),
+            quantity: parseNumber(item?.quantity),
+            price: parseNumber(item?.price),
+            selectedSize: item?.selectedSize ?? item?.size ?? null,
+            selectedGrind,
+            grindOption: selectedGrind || item?.grindOption || "",
+            grind: selectedGrind || item?.grind || "",
+            grindOptions: Array.isArray(item?.grindOptions)
+              ? item.grindOptions.filter(Boolean)
+              : selectedGrind
+                ? [selectedGrind]
+                : [],
+          };
+        })
+      : [];
+
+    const sanitizedOrderData = {
+      ...orderData,
+      items: sanitizedItems,
+      total: parseNumber(orderData.total),
+      discountedTotal: parseNumber(orderData.discountedTotal),
+      shipping: parseNumber(orderData.shipping),
+    };
+
+    const newOrder = new Order(sanitizedOrderData);
     await newOrder.save();
 
     const {
@@ -18,7 +70,7 @@ export const placeOrder = async (req, res) => {
       discountedTotal,
       shipping,
       deliveryTime,
-    } = orderData;
+    } = sanitizedOrderData;
 
     const finalTotal =
       Number(discountedTotal || total || 0) + Number(shipping || 0);
@@ -31,7 +83,14 @@ export const placeOrder = async (req, res) => {
           ? (price * quantity).toFixed(2)
           : "N/A";
 
-        return `<li>${i.name} × ${quantity} (${i.selectedSize}g) — NRs. ${total}</li>`;
+        const grindLabel = i.selectedGrind || i.grindOption || i.grind || "";
+        const sizeLabel = i.selectedSize ?? "";
+        const sizeText = sizeLabel
+          ? ` (${sizeLabel}${typeof sizeLabel === "number" ? "g" : ""})`
+          : "";
+        const grindText = grindLabel ? ` [Grind: ${grindLabel}]` : "";
+
+        return `<li>${i.name} × ${quantity}${sizeText}${grindText} — NRs. ${total}</li>`;
       })
       .join("");
 
@@ -40,67 +99,14 @@ export const placeOrder = async (req, res) => {
         ? (Number(total) - Number(finalTotal)).toFixed(2)
         : null;
 
-    // const mailOptions = {
-    //   from: `"Jewel Himalayan Products" <${process.env.SENDER_EMAIL}>`,
-    //   to: email,
-    //   subject: "Order Confirmation - Jewel Himalayan Products",
-    //   html: `
-    //   <div style="font-family: 'Segoe UI', sans-serif; max-width: 600px; margin: auto; border: 1px solid #e0e0e0; padding: 32px; border-radius: 12px; background-color: #ffffff;">
-    //     <div style="text-align: center;">
-    //       <img src="https://store.jewelhimalayanproducts.com/store.png" alt="JHP Logo" style="width: 140px; margin-bottom: 20px;" />
-    //       <h2 style="color: #4a2e1b;">Thank you for your order!</h2>
-    //     </div>
-
-    //     <p style="font-size: 16px;">Hi <strong>${firstName} ${lastName}</strong>,</p>
-    //     <p style="font-size: 15px;">We’ve received your order and are preparing it for shipment. Below are your order details:</p>
-
-    //     <h3 style="color: #4a2e1b; margin-top: 24px;">Shipping Information</h3>
-    //     <ul style="list-style-type: none; padding-left: 0; font-size: 15px; color: #333;">
-    //       <li><strong>Phone:</strong> ${phone}</li>
-    //       <li><strong>Address:</strong> ${location?.address} (${
-    //     location?.lat
-    //   }, ${location?.lng})</li>
-    //       <li><strong>Delivery Time:</strong> ${deliveryTime || "Standard"}</li>
-    //     </ul>
-
-    //     <h3 style="color: #4a2e1b; margin-top: 24px;">Items Ordered</h3>
-    //     <ul style="padding-left: 20px; font-size: 15px; color: #333;">${itemsHtml}</ul>
-
-    //     <div style="margin-top: 24px; font-size: 15px; border-top: 1px dashed #ccc; padding-top: 16px;">
-    //       <p><strong>Total:</strong> NRs. ${Number(total || 0).toFixed(2)}</p>
-    //       ${
-    //         discountAmount
-    //           ? `<p><strong>Discount:</strong> -NRs. ${discountAmount}</p>`
-    //           : ""
-    //       }
-    //       ${
-    //         shipping !== undefined && !isNaN(Number(shipping))
-    //           ? `<p><strong>Shipping:</strong> NRs. ${Number(shipping).toFixed(
-    //               2
-    //             )}</p>`
-    //           : ""
-    //       }
-    //       <p style="font-size: 17px; margin-top: 10px;"><strong>Final Total:</strong> <span style="color: #4a2e1b;">NRs. ${Number(
-    //         finalTotal || 0
-    //       ).toFixed(2)}</span></p>
-    //     </div>
-
-    //     <div style="text-align: center; margin-top: 32px;">
-    //       <a href="https://store.jewelhimalayanproducts.com" style="background-color: #4a2e1b; color: #fff; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-size: 16px;">Shop More</a>
-    //     </div>
-
-    //     <p style="margin-top: 40px; font-size: 13px; color: #888; text-align: center;">If you have any questions, feel free to reply to this email.</p>
-    //     <p style="font-size: 12px; color: #aaa; text-align: center;">© ${new Date().getFullYear()} Jewel Himalayan Products. All rights reserved.</p>
-    //   </div>
-    // `,
-    // };
-
-    // await transporter.sendMail(mailOptions);
-
     res.status(201).json({
       message: "Order placed and confirmation email sent successfully.",
     });
   } catch (error) {
-    res.status(500).json({ error: "Failed to place order or send email." });
+    console.error("Order placement failed:", error);
+    res.status(500).json({
+      error: "Failed to place order.",
+      details: error?.message || "Unknown error",
+    });
   }
 };

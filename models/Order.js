@@ -25,11 +25,15 @@ const orderSchema = new mongoose.Schema(
       {
         itemId: { type: Number, required: true },
         name: { type: String, required: true },
-        selectedSize: { type: Number, required: true },
+        selectedSize: { type: mongoose.Schema.Types.Mixed, required: false },
         quantity: { type: Number, required: true },
         price: { type: Number, required: true },
         type: { type: String },
         process: { type: String },
+        grindOption: { type: String },
+        selectedGrind: { type: String },
+        grind: { type: String },
+        grindOptions: [{ type: String }],
       },
     ],
 
